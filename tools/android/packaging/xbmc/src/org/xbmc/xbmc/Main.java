@@ -1,4 +1,4 @@
-package com.semperpax.spmc;
+package com.semperpax.spmclibmedia;
 
 import android.app.NativeActivity;
 import android.content.Intent;

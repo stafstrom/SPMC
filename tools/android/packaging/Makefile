@@ -47,7 +47,7 @@ package: extras
 	@javac -classpath $(SDKROOT)/platforms/$(SDK_PLATFORM)/android.jar:xbmc/obj -d xbmc/obj -sourcepath xbmc/src xbmc/src/org/xbmc/xbmc/*.java
 	@$(DX) --dex --output=xbmc/classes.dex xbmc/obj
 	@cd xbmc; zip -r -q ../images/spmcapp-debug-$(PLATFORM)-unaligned.apk lib/$(PLATFORM) assets classes.dex
-	@jarsigner -sigalg MD5withRSA -digestalg SHA1 -keystore ~/Dropbox/Private/spmc.keystore -storepass android images/spmcapp-debug-$(PLATFORM)-unaligned.apk androiddebugkey
+	@jarsigner -sigalg MD5withRSA -digestalg SHA1 -keystore ~/.android/debug.keystore -storepass android images/spmcapp-debug-$(PLATFORM)-unaligned.apk androiddebugkey
 	@$(SDKROOT)/tools/zipalign -f 4 images/spmcapp-debug-$(PLATFORM)-unaligned.apk $(XBMCROOT)/spmc-$(PLATFORM).apk
 	@rm images/spmcapp-debug-$(PLATFORM)-unaligned.apk
 	@echo "$(XBMCROOT)/spmc-$(PLATFORM).apk created"

@@ -65,4 +65,7 @@ private:
   volatile bool      m_draining;
   double             m_audiotrackbuffer_sec;
   double             m_audiotrack_empty_sec;
+  
+  bool               m_passthrough;
+  bool          	 m_libMediaPassThroughHack;
 };

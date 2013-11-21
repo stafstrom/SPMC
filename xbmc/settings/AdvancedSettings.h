@@ -383,6 +383,10 @@ class CAdvancedSettings
     bool m_initialized;
 
     void SetDebugMode(bool debug);
+
+   #if defined(TARGET_ANDROID)
+    bool m_libMediaPassThroughHack;      // Enables pass through with patched libmedia.so
+   #endif    
 };
 
 XBMC_GLOBAL(CAdvancedSettings,g_advancedSettings);

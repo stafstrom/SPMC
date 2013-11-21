@@ -23,6 +23,7 @@
 #include "Utils/AERingBuffer.h"
 #include "android/activity/XBMCApp.h"
 #include "utils/log.h"
+#include "settings/AdvancedSettings.h"
 #if defined(HAS_AMLPLAYER)
 #include "cores/amlplayer/AMLUtils.h"
 #endif
@@ -93,6 +94,13 @@ CAESinkAUDIOTRACK::~CAESinkAUDIOTRACK()
 bool CAESinkAUDIOTRACK::Initialize(AEAudioFormat &format, std::string &device)
 {
   m_format = format;
+
+  if (AE_IS_RAW(m_format.m_dataFormat))
+    m_passthrough = true;
+  else
+    m_passthrough = false;
+
+  m_libMediaPassThroughHack = g_advancedSettings.m_libMediaPassThroughHack;
 
   // default to 44100, all android devices support it.
   // then check if we can support the requested rate.
@@ -344,13 +352,19 @@ void CAESinkAUDIOTRACK::Process()
   m_sinkbuffer_sec_per_byte = 1.0 / (double)(m_sink_frameSize * m_format.m_sampleRate);
   m_sinkbuffer_sec = (double)m_sinkbuffer_sec_per_byte * m_sinkbuffer->GetMaxSize();
 
+  // libmedia hack patch
+  jint streamType = GetStaticIntField(jenv, "AudioManager", "STREAM_MUSIC");;
+  if( m_passthrough && m_libMediaPassThroughHack )
+    streamType = GetStaticIntField(jenv, "AudioManager", "STREAM_VOICE_CALL");
+
   jobject joAudioTrack = jenv->NewObject(jcAudioTrack, jmInit,
-    GetStaticIntField(jenv, "AudioManager", "STREAM_MUSIC"),
+    streamType,
     m_format.m_sampleRate,
     channelConfig,
     audioFormat,
     min_buffer_size,
     GetStaticIntField(jenv, "AudioTrack", "MODE_STREAM"));
+  // libmedia hack patch end
 
   // The AudioTrack object has been created and waiting to play,
   m_inited.Set();

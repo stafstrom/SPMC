@@ -111,11 +111,11 @@ void CAdvancedSettings::Initialize()
   m_DXVAForceProcessorRenderer = true;
   m_DXVANoDeintProcForProgressive = false;
   m_videoFpsDetect = 1;
-  m_stagefrightConfig.useAVCcodec = -1;
-  m_stagefrightConfig.useVC1codec = -1;
-  m_stagefrightConfig.useVPXcodec = -1;
-  m_stagefrightConfig.useMP4codec = -1;
-  m_stagefrightConfig.useMPEG2codec = -1;
+  m_stagefrightConfig.useAVCcodec = 1;
+  m_stagefrightConfig.useVC1codec = 1;
+  m_stagefrightConfig.useVPXcodec = 1;
+  m_stagefrightConfig.useMP4codec = 1;
+  m_stagefrightConfig.useMPEG2codec = 1;
   m_stagefrightConfig.useSwRenderer = false;
   m_stagefrightConfig.useInputDTS = false;
 
@@ -336,6 +336,10 @@ void CAdvancedSettings::Initialize()
   m_databaseVideo.Reset();
 
   m_logLevelHint = m_logLevel = LOG_LEVEL_NORMAL;
+  
+ #if defined(TARGET_ANDROID)
+  m_libMediaPassThroughHack = true;      // Enables pass through with patched libmedia.so
+ #endif
 }
 
 bool CAdvancedSettings::Load()
@@ -1086,6 +1090,10 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
     XMLUtils::GetInt(pElement, "algorithmdirtyregions",     m_guiAlgorithmDirtyRegions);
     XMLUtils::GetInt(pElement, "nofliptimeout",             m_guiDirtyRegionNoFlipTimeout);
   }
+ 
+ #if defined(TARGET_ANDROID)
+   XMLUtils::GetBoolean(pRootElement, "libMediaPassThroughHack", m_libMediaPassThroughHack);
+ #endif
 
   // load in the GUISettings overrides:
   g_guiSettings.LoadXML(pRootElement, true);  // true to hide the settings we read in
