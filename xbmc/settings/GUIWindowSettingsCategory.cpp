@@ -2893,7 +2893,15 @@ void CGUIWindowSettingsCategory::FillInAudioDevices(CSetting* pSetting, bool Pas
 #if !defined(TARGET_DARWIN)
   if (sinkList.size()==0)
   {
-    pControl->AddLabel("Error - no devices found", 0);
+	#if defined(TARGET_ANDROID)
+	  if( g_advancedSettings.m_libMediaPassThroughHack )
+	  	pControl->AddLabel("libmedia hack by stafstrom enabled", 0);
+	  else
+    	pControl->AddLabel("Error - no devices found", 0);
+    #else
+      pControl->AddLabel("Error - no devices found", 0);
+    #endif
+    
     selectedValue = 0;
   }
   else
