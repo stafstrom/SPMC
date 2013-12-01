@@ -26,6 +26,8 @@
 #include <dlfcn.h>
 
 typeof(AMotionEvent_getAxisValue) *p_AMotionEvent_getAxisValue;
+typeof(AMotionEvent_getButtonState) *p_AMotionEvent_getButtonState;
+
 
 CEventLoop::CEventLoop(android_app* application)
   : m_enabled(false),
@@ -51,7 +53,10 @@ void CEventLoop::run(IActivityHandler &activityHandler, IInputHandler &inputHand
 
   // missing in early NDKs, is present in r9b+
   p_AMotionEvent_getAxisValue = (typeof(AMotionEvent_getAxisValue)*) dlsym(RTLD_DEFAULT, "AMotionEvent_getAxisValue");
-  CXBMCApp::android_printf("CEventLoop: AMotionEvent_getAxisValue: %p", p_AMotionEvent_getAxisValue);
+
+  // missing in NDK
+  p_AMotionEvent_getButtonState = (typeof(AMotionEvent_getButtonState)*) dlsym(RTLD_DEFAULT, "AMotionEvent_getButtonState");
+  CXBMCApp::android_printf("CEventLoop: AMotionEvent_getAxisValue: %p, AMotionEvent_getButtonState: %p", p_AMotionEvent_getAxisValue, p_AMotionEvent_getButtonState);
 
   CXBMCApp::android_printf("CEventLoop: starting event loop");
   while (1)
@@ -169,26 +174,38 @@ void CEventLoop::processActivity(int32_t command)
 
 int32_t CEventLoop::processInput(AInputEvent* event)
 {
-  int32_t type = AInputEvent_getType(event);
-  int32_t src = AInputEvent_getSource(event);
-  switch (type)
-  {
-    case AINPUT_EVENT_TYPE_MOTION:
-      if ( src == AINPUT_SOURCE_TOUCHSCREEN )
-        return m_inputHandler->onTouchEvent(event);
-      else if ( src == AINPUT_SOURCE_MOUSE )
-        return m_inputHandler->onMouseEvent(event);
-      else if (src & AINPUT_SOURCE_GAMEPAD || src & AINPUT_SOURCE_JOYSTICK)
-        return m_inputHandler->onJoystickMoveEvent(event);
-      break;
+  int32_t rtn    = 0;
+  int32_t type   = AInputEvent_getType(event);
+  int32_t source = AInputEvent_getSource(event);
 
+  switch(type)
+  {
     case AINPUT_EVENT_TYPE_KEY:
-      if (src & AINPUT_SOURCE_GAMEPAD || src & AINPUT_SOURCE_JOYSTICK)
-        return m_inputHandler->onJoystickButtonEvent(event);
-      return m_inputHandler->onKeyboardEvent(event);
+      if (source & AINPUT_SOURCE_GAMEPAD || source & AINPUT_SOURCE_JOYSTICK)
+      {
+        if (m_inputHandler->onJoystickButtonEvent(event))
+          return true;
+      }
+      rtn = m_inputHandler->onKeyboardEvent(event);
+      break;
+    case AINPUT_EVENT_TYPE_MOTION:
+      switch(source)
+      {
+        case AINPUT_SOURCE_TOUCHSCREEN:
+          rtn = m_inputHandler->onTouchEvent(event);
+          break;
+        case AINPUT_SOURCE_MOUSE:
+          rtn = m_inputHandler->onMouseEvent(event);
+          break;
+        case AINPUT_SOURCE_GAMEPAD:
+        case AINPUT_SOURCE_JOYSTICK:
+          rtn = m_inputHandler->onJoystickMoveEvent(event);
+          break;
+      }
+      break;
   }
 
-  return 0;
+  return rtn;
 }
 
 void CEventLoop::activityCallback(android_app* application, int32_t command)
