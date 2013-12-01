@@ -23,6 +23,10 @@
 
 #include "AndroidExtra.h"
 
+#include <dlfcn.h>
+
+typeof(AMotionEvent_getAxisValue) *p_AMotionEvent_getAxisValue;
+
 CEventLoop::CEventLoop(android_app* application)
   : m_enabled(false),
     m_application(application),
@@ -44,6 +48,10 @@ void CEventLoop::run(IActivityHandler &activityHandler, IInputHandler &inputHand
 
   m_activityHandler = &activityHandler;
   m_inputHandler = &inputHandler;
+
+  // missing in early NDKs, is present in r9b+
+  p_AMotionEvent_getAxisValue = (typeof(AMotionEvent_getAxisValue)*) dlsym(RTLD_DEFAULT, "AMotionEvent_getAxisValue");
+  CXBMCApp::android_printf("CEventLoop: AMotionEvent_getAxisValue: %p", p_AMotionEvent_getAxisValue);
 
   CXBMCApp::android_printf("CEventLoop: starting event loop");
   while (1)
@@ -166,9 +174,9 @@ int32_t CEventLoop::processInput(AInputEvent* event)
   switch (type)
   {
     case AINPUT_EVENT_TYPE_MOTION:
-      if (src & AINPUT_SOURCE_TOUCHSCREEN)
+      if ( src == AINPUT_SOURCE_TOUCHSCREEN )
         return m_inputHandler->onTouchEvent(event);
-      else if (src & AINPUT_SOURCE_MOUSE)
+      else if ( src == AINPUT_SOURCE_MOUSE )
         return m_inputHandler->onMouseEvent(event);
       else if (src & AINPUT_SOURCE_GAMEPAD || src & AINPUT_SOURCE_JOYSTICK)
         return m_inputHandler->onJoystickMoveEvent(event);
