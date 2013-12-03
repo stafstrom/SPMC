@@ -64,9 +64,6 @@ bool CAndroidMouse::onMouseEvent(AInputEvent* event)
     case AMOTION_EVENT_ACTION_SCROLL:
       MouseWheel(x, y, AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, mousePointerIdx));
       return true;
-    case AMOTION_EVENT_ACTION_SCROLL:
-      MouseWheel(x, y, AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, mousePointer));
-      return true;
     default:
       MouseMove(x,y);
       return true;

@@ -171,10 +171,13 @@ bool CAndroidJoystick::onJoystickButtonEvent(AInputEvent* event)
       xbmcButton = 8;
       break;
 
-	case AKEYCODE_ENTER:
     case AKEYCODE_DPAD_CENTER:
     case AKEYCODE_BUTTON_SELECT:
       xbmcButton = 15;
+      break;
+
+	case AKEYCODE_ENTER:
+	  xbmcButton = 16;
       break;
 
     default:

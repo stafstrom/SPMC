@@ -16,7 +16,8 @@
 <!-- 12              D-Pad Down                -->
 <!-- 13              D-Pad Left                -->
 <!-- 14              D-Pad Right               -->
-<!-- 15              Select                    -->
+<!-- 15              ContextMenu               -->
+<!-- 16              Select                    -->
 
 
 
@@ -41,6 +42,7 @@
       <button id="13">Left</button>
       <button id="14">Right</button>
       <button id="15">ContextMenu</button>
+      <button id="16">Select</button>
       <axis id="1" limit="-1">AnalogSeekBack</axis>
       <axis id="1" limit="+1">AnalogSeekForward</axis>
       <axis id="2" limit="-1">AnalogSeekForward</axis>
