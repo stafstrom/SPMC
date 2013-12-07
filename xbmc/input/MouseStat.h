@@ -165,6 +165,7 @@ private:
 
   bool bClick[5];
   bool bDoubleClick[5];
+  bool bLongClick[5];
   int  bHold[5];
 
   uint32_t m_Action;
