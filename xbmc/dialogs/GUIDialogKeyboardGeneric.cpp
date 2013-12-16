@@ -106,6 +106,9 @@ void CGUIDialogKeyboardGeneric::OnInitWindow()
 
 bool CGUIDialogKeyboardGeneric::OnAction(const CAction &action)
 {
+  CLog::Log(LOGDEBUG,"%s - action GetID():%d GetRepeat():%f GetButtonCode():%d, GetUnicode():%d", __func__,
+  					action.GetID(), action.GetRepeat(), action.GetButtonCode(), action.GetUnicode());
+  
   bool handled(true);
   if (action.GetID() == ACTION_BACKSPACE)
   {
@@ -196,12 +199,14 @@ bool CGUIDialogKeyboardGeneric::OnAction(const CAction &action)
     		ch -= 32;
     		
     	OnShift();	
-	}
+	}	
 	else if( m_keyType == CAPS && !m_bShift )
 	{
 		if (ch >= 'a' && ch <= 'z')
     		ch -= 32;
     }
+    else if( m_keyType == CAPS && m_bShift )
+    	OnShift();
    		
     // Ignore non-printing characters
     if ( !((0 <= ch && ch < 0x8) || (0xE <= ch && ch < 0x1B) || (0x1C <= ch && ch < 0x20)) )

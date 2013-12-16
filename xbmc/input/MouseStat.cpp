@@ -264,11 +264,12 @@ CMouseStat::CButtonState::BUTTON_ACTION CMouseStat::CButtonState::Update(unsigne
       m_time = time;
       m_x = x;
       m_y = y;
+      m_longClickSent = false;
     }
   }
   else if (m_state == STATE_IN_CLICK)
   {
-    if (down)
+    if (down && (time - m_time < short_click_time) )
     {
       if (!InClickRange(x,y))
       { // beginning a drag
@@ -288,8 +289,18 @@ CMouseStat::CButtonState::BUTTON_ACTION CMouseStat::CButtonState::Update(unsigne
       }
       else
       { // long click
-        m_state = STATE_RELEASED;
-        return MB_LONG_CLICK;
+		if (down && !m_longClickSent)
+		{
+			m_longClickSent = true;
+			return MB_LONG_CLICK;
+		}
+		else if (!down && m_longClickSent)
+        	m_state = STATE_RELEASED;
+		else if (!m_longClickSent)
+		{	
+        	m_state = STATE_RELEASED;
+        	return MB_LONG_CLICK;
+		}
       }
     }
   }

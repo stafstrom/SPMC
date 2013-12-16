@@ -91,20 +91,28 @@ void CAndroidMouse::MouseMove(float x, float y)
   CWinEvents::MessagePush(&newEvent);
 }
 
+void CAndroidMouse::fakeMouseButtonEvent( void )
+{
+  MouseButton( oldX, oldY, AMOTION_EVENT_ACTION_DOWN, AMOTION_EVENT_BUTTON_PRIMARY);
+}
+
 void CAndroidMouse::MouseButton(float x, float y, int32_t action, int32_t buttons)
 {
-#ifdef DEBUG_VERBOSE
+//#ifdef DEBUG_VERBOSE
   CXBMCApp::android_printf("%s: x:%f, y:%f, action:%i, buttons:%i", __PRETTY_FUNCTION__, x, y, action, buttons);
-#endif
+//#endif
   XBMC_Event newEvent;
 
+  oldX = x;
+  oldY = y;
+  
   memset(&newEvent, 0, sizeof(newEvent));
 
   int32_t checkButtons = buttons;
-  if (action ==  AMOTION_EVENT_ACTION_UP)
+  if (action == AMOTION_EVENT_ACTION_UP)
     checkButtons = m_lastButtonState;
 
-  newEvent.type = (action ==  AMOTION_EVENT_ACTION_DOWN) ? XBMC_MOUSEBUTTONDOWN : XBMC_MOUSEBUTTONUP;
+  newEvent.type = (action == AMOTION_EVENT_ACTION_DOWN) ? XBMC_MOUSEBUTTONDOWN : XBMC_MOUSEBUTTONUP;
   newEvent.button.state = (action ==  AMOTION_EVENT_ACTION_DOWN) ? XBMC_PRESSED : XBMC_RELEASED;
   newEvent.button.type = newEvent.type;
   newEvent.button.x = x;
